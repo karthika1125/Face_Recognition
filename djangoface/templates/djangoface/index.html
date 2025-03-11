@@ -1,0 +1,274 @@
+{% extends "djangoface/layout.html" %}
+
+{% block body %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%;">
+        <h1 class="text-center mb-3 fw-bold">Upload Image</h1>
+
+        <form method="post" id="image-form" enctype='multipart/form-data' class="text-center">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="image" class="form-label fw-bold">Select an image</label>
+                <div class="image-upload-box border rounded p-3">
+                    <input type="file" class="form-control d-none" name="image" id="image" accept="image/*" onchange="previewImage(event)">
+                    <div class="upload-area d-flex flex-column align-items-center justify-content-center" onclick="document.getElementById('image').click();">
+                        <i class="fa-solid fa-upload fs-2 text-primary"></i>
+                        <p class="mt-2 text-muted">Click to upload</p>
+                        <img id="image-preview" class="rounded mt-2 d-none" style="width: 100px; height: 100px; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary w-100 mt-3 identify-btn" id="identify-btn" type="submit">
+                Identify Faces <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Results Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="label" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="label">Detection Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="image-container">
+                    <h6 class="fw-bold">Detected Faces</h6>
+                    <div class="d-flex flex-wrap justify-content-center" id="faces-container">
+                        <!-- Dynamically Injected Faces -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary w-100" id="download-btn">Download</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enlarged Face Modal -->
+<div class="modal fade" id="facePreviewModal" tabindex="-1" aria-labelledby="facePreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="facePreviewLabel">Face Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="face-preview-img" class="img-fluid rounded" style="max-width: 60%; height: auto;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    function previewImage(event) {
+        let reader = new FileReader();
+        reader.onload = function () {
+            let preview = document.getElementById('image-preview');
+            preview.src = reader.result;
+            preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function showDetectedFaces(faces) {
+        let container = document.getElementById('faces-container');
+        container.innerHTML = ""; // Clear previous results
+
+        faces.forEach(face => {
+            let faceCard = document.createElement("div");
+            faceCard.classList.add("face-card", "shadow-sm", "m-2", "p-2");
+            faceCard.innerHTML = `
+                <img src="${face.image}" class="face-img rounded-circle" onclick="showFacePreview('${face.image}')">
+                <p class="face-name">${face.name}</p>
+            `;
+            container.appendChild(faceCard);
+        });
+
+        let modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        modal.show();
+    }
+
+    function showFacePreview(imageUrl) {
+        document.getElementById("face-preview-img").src = imageUrl;
+        let previewModal = new bootstrap.Modal(document.getElementById("facePreviewModal"));
+        previewModal.show();
+    }
+</script>
+
+<!-- Styles -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    background: #f4f4f4;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 15px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Image Upload Box */
+.image-upload-box {
+    cursor: pointer;
+    border: 2px dashed #3498db;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+    border-radius: 10px;
+}
+
+.image-upload-box:hover {
+    background: #ecf0f1;
+    border-color: #2980b9;
+}
+
+/* Upload Icon & Text */
+.upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-area i {
+    font-size: 2.5rem;
+    color: #3498db;
+}
+
+.upload-area p {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Identify Button */
+.identify-btn {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    padding: 10px;
+    transition: background 0.3s ease-in-out;
+}
+
+.identify-btn i {
+    margin-left: 8px;
+}
+
+.identify-btn:hover {
+    background: #2980b9;
+}
+
+/* Face Detection Results */
+#faces-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Face Cards */
+.face-card {
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    width: 120px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.face-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+/* Face Image */
+.face-img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #3498db;
+    transition: border 0.3s ease-in-out;
+}
+
+.face-img:hover {
+    border-color: #2ecc71;
+}
+
+/* Face Name */
+.face-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 8px;
+}
+
+/* Results Modal */
+#imageModal .modal-content {
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    background: #ffffff;
+}
+
+#imageModal .modal-header {
+    background: #3498db;
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 15px;
+}
+
+#imageModal .modal-body {
+    padding: 20px;
+}
+
+#imageModal .modal-footer {
+    border-top: none;
+    background: #f4f4f4;
+    border-radius: 0 0 15px 15px;
+}
+
+/* Download Button */
+#download-btn {
+    background: #2ecc71;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: background 0.3s ease-in-out;
+}
+
+#download-btn:hover {
+    background: #27ae60;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+    .face-card {
+        width: 100px;
+    }
+
+    .face-img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .face-name {
+        font-size: 14px;
+    }
+}
+</style>
+{% endblock %}

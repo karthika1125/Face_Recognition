@@ -1,0 +1,181 @@
+{% extends "djangoface/layout.html" %}
+
+{% block body %}
+<div class="dashboard-container d-flex">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Celebrity Match</h2>
+        <ul>
+            <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content w-100 p-4">
+        <!-- Header -->
+        <header class="mb-4 text-center text-md-start">
+            <h1>Welcome, <span id="username">{{ user.username }}</span>! 🎉</h1>
+        </header>
+
+        <!-- Face Database Section -->
+        <div class="face-database py-3">
+            <h2 class="text-center">Face Database</h2>
+            <div class="search-container text-center mb-3">
+                <form method="GET" action="{% url 'faces' %}" class="d-flex justify-content-center">
+                    <input type="text" name="q" class="form-control w-50 me-2" placeholder="Search faces..." value="{{ request.GET.q }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+
+            <div class="text-center mb-3">
+                <button type="button" class="btn btn-success w-50" data-bs-toggle="modal" data-bs-target="#new-face-modal">
+                    ➕ Upload New Face
+                </button>
+            </div>
+
+            <!-- Face Cards -->
+            <div class="face-grid mt-4">
+                {% for face in faces %}
+                    <div class="face-card">
+                        <img src="{{ face.face.url }}" alt="Face Image">
+                        <h6>{{ face.name }}</h6>
+                        <a href="{% url 'delete_face' face.id %}" class="btn btn-danger btn-sm">❌ Delete</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Upload Face Modal -->
+        <div class="modal fade" id="new-face-modal" tabindex="-1" aria-labelledby="label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="label">Upload New Face</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'faces' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="text" class="form-control mb-2" name="name" placeholder="Name" required />
+                            <input class="form-control" type="file" name="image" required />
+                            <button type="submit" class="btn btn-primary mt-3 w-100">Upload</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function logout() {
+        alert("Logging out...");
+        window.location.href = "{% url 'login' %}";
+    }
+</script>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background: #f4f4f4;
+    }
+
+    .dashboard-container {
+        display: flex;
+        height: 100vh;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+    }
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .sidebar ul li a {
+        color: white;
+        text-decoration: none;
+        display: block;
+        padding: 12px;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+
+    .sidebar ul li a:hover {
+        background: #34495e;
+    }
+
+    .content {
+        flex: 1;
+        padding: -10px;
+        margin-left: 150px;
+        transition: margin-left 0.3s;
+    }
+
+    .face-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .face-card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .face-card img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .face-card:hover {
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            height: auto;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .sidebar ul {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .content {
+            margin-left: 0;
+        }
+    }
+</style>
+{% endblock %}
