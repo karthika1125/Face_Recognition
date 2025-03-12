@@ -187,3 +187,10 @@ def register(request):
     
 def mypage(request):
     return render(request, "djangoface/mypage.html")
+
+
+def about(request):
+    return render(request,'djangoface/about.html')
+
+def contact(request):
+    return render(request,'djangoface\contact.html')
