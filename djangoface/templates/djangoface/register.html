@@ -1,9 +1,165 @@
 {% extends "djangoface/layout.html" %}
 
 {% block body %}
+<style>
+    /* Full-screen background */
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0b0f1a, #111827);
+        overflow: hidden;
+        position: relative;
+        color: white;
+    }
+
+    /* Animated face grid background */
+    .face-grid {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: url('https://i.imgur.com/3NQF0ZG.png');
+        background-size: cover;
+        opacity: 0.1;
+        animation: gridMove 6s linear infinite alternate;
+    }
+
+    @keyframes gridMove {
+        0% { transform: scale(1); opacity: 0.2; }
+        100% { transform: scale(1.05); opacity: 0.4; }
+    }
+
+    /* Face scanning effect */
+    .scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: rgba(78, 129, 228, 0.7);
+        box-shadow: 0 0 15px rgba(93, 133, 255, 0.9);
+        animation: scanMove 4s linear infinite;
+    }
+
+    @keyframes scanMove {
+        0% { top: 0%; opacity: 0.8; }
+        50% { top: 100%; opacity: 0.4; }
+        100% { top: 0%; opacity: 0.8; }
+    }
+
+    /* Registration Card */
+    .register-container {
+        width: 100%;
+        max-width: 420px;
+        background: rgba(15, 20, 35, 0.95);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 0 30px rgba(76, 126, 233, 0.6);
+        text-align: center;
+        position: relative;
+        z-index: 10;
+        backdrop-filter: blur(12px);
+    }
+
+    .register-container h2 {
+        font-weight: 700;
+        color: #4d90fe;
+        text-shadow: 0 0 10px rgba(77, 144, 254, 0.6);
+    }
+
+    /* Form Fields */
+    .input-group {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 0 15px rgba(92, 118, 210, 0.2);
+        transition: 0.3s ease;
+    }
+
+    .input-group:hover {
+        box-shadow: 0 0 20px rgba(92, 118, 210, 0.4);
+    }
+
+    .input-group i {
+        color: #4d90fe;
+        margin-right: 10px;
+    }
+
+    .form-control {
+        background: transparent;
+        border: none;
+        outline: none;
+        width: 100%;
+        color: white;
+        font-size: 16px;
+        transition: 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-bottom: 2px solid #4d90fe;
+        box-shadow: 0 0 10px rgba(92, 118, 210, 0.5);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Password Toggle */
+    .toggle-password {
+        cursor: pointer;
+        color: #4d90fe;
+        transition: 0.3s;
+    }
+
+    .toggle-password:hover {
+        color: #76a8fc;
+    }
+
+    /* Submit Button */
+    .btn-primary {
+        background: linear-gradient(135deg, #4d90fe, #2a5cd9);
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        transition: all 0.3s ease-in-out;
+        font-weight: bold;
+        color: white;
+        box-shadow: 0 0 15px rgba(93, 133, 255, 0.6);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2a5cd9, #1d47b5);
+        box-shadow: 0 0 25px rgba(93, 133, 255, 0.9);
+        transform: scale(1.05);
+    }
+
+    /* Links */
+    a {
+        color: #4d90fe;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+
+    a:hover {
+        color: #76a8fc;
+        text-decoration: underline;
+    }
+</style>
+
+<!-- Animated Background -->
+<div class="face-grid"></div>
+<div class="scan-line"></div>
+
+<!-- Registration Form -->
 <div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow p-4" style="width: 400px;">
-        <h2 class="text-center mb-4">Register</h2>
+    <div class="register-container">
+        <h2 class="text-center mb-4 fw-bold">Create an Account</h2>
 
         {% if message %}
             <div class="alert alert-danger text-center">{{ message }}</div>
@@ -11,31 +167,56 @@
 
         <form action="{% url 'register' %}" method="post">
             {% csrf_token %}
-            <div class="form-group">
-                <label for="username" class="fw-semibold">Username</label>
-                <input autofocus class="form-control my-2" type="text" name="username" id="username" placeholder="Enter your username" required>
+
+            <div class="input-group">
+                <i class="bi bi-person"></i>
+                <input autofocus class="form-control" type="text" name="username" id="username" placeholder="Username" required>
             </div>
-            <div class="form-group">
-                <label for="email" class="fw-semibold">Email Address</label>
-                <input class="form-control my-2" type="email" name="email" id="email" placeholder="Enter your email" required>
+
+            <div class="input-group">
+                <i class="bi bi-envelope"></i>
+                <input class="form-control" type="email" name="email" id="email" placeholder="Email Address" required>
             </div>
-            <div class="form-group">
-                <label for="password" class="fw-semibold">Password</label>
-                <input class="form-control my-2" type="password" name="password" id="password" placeholder="Enter your password" required>
+
+            <div class="input-group">
+                <i class="bi bi-lock"></i>
+                <input class="form-control" type="password" name="password" id="password" placeholder="Password" required>
+                <span class="toggle-password" onclick="togglePassword('password')">
+                    <i class="bi bi-eye-slash"></i>
+                </span>
             </div>
-            <div class="form-group">
-                <label for="confirmation" class="fw-semibold">Confirm Password</label>
-                <input class="form-control my-2" type="password" name="confirmation" id="confirmation" placeholder="Re-enter your password" required>
+            
+            <div class="input-group">
+                <i class="bi bi-lock-fill"></i>
+                <input class="form-control" type="password" name="confirmation" id="confirmation" placeholder="Confirm Password" required>
+                <span class="toggle-password" onclick="togglePassword('confirmation')">
+                    <i class="bi bi-eye-slash"></i>
+                </span>
             </div>
-            <button class="btn btn-primary w-100 mt-3" type="submit">Register</button>
+            
+            <button class="btn btn-primary w-100 mt-3" type="submit">Sign Up</button>
         </form>
 
         <div class="text-center mt-3">
-            <small>
-                Already have an account? 
-                <a href="{% url 'login' %}" class="fw-semibold text-decoration-none">Log in here.</a>
+            <small>Already have an account? 
+                <a href="{% url 'login' %}" class="fw-semibold text-decoration-none text-primary">Log in</a>
             </small>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword(fieldId) {
+        let passwordField = document.getElementById(fieldId);
+        let icon = passwordField.nextElementSibling.querySelector("i");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            icon.classList.replace("bi-eye-slash", "bi-eye");
+        } else {
+            passwordField.type = "password";
+            icon.classList.replace("bi-eye", "bi-eye-slash");
+        }
+    }
+</script>
 {% endblock %}

@@ -14,5 +14,9 @@ urlpatterns = [
     path("accounts/register/", views.register, name="register"),
     path("mypage/", views.mypage, name="mypage"),
     path('about/',views.about,name='about'),
-    path('contact/',views.contact,name='contact')
+    path('contact/',views.contact,name='contact'),
+    path("capture_image/", views.capture_image, name="capture_image"),  # ✅ Ensure this matches frontend URL
+
+   
+  
 ]

@@ -47,11 +47,16 @@
                                 <a class="nav-link text-light" href="{% url 'faces' %}">Faces</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link text-light fw-bold" href="{% url 'capture_image' %}">
+                                    <i class="fa-solid fa-video me-1"></i> Live
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="btn btn-sm btn-danger text-white px-3" href="{% url 'logout' %}">Log Out</a>
                             </li>
                         {% else %}
                             <li class="nav-item">
-                                <a class="btn btn-sm btn-primary text-white px-3" href="{% url 'login' %}">Log In</a>
+                                <!-- <a class="btn btn-sm btn-primary text-white px-3" href="{% url 'login' %}">Log In</a> -->
                             </li>
                         {% endif %}
                     </ul>
